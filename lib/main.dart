@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'dart:math';
 
+import 'package:jogo_da_velha/UI/button_design.dart';
+
 void main() {
+  debugPaintSizeEnabled = true;
   runApp(MyApp());
 }
 
@@ -9,9 +13,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Jogo da Velha',
+      title: 'JOGO DA IDOSA',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: MenuScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -19,34 +24,49 @@ class MyApp extends StatelessWidget {
 class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    void playWithPlayer() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => GameScreen(vsCpu: false)),
+      );
+    }
+
+    void playWithCpu() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => GameScreen(vsCpu: true)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.green[900],
-      appBar: AppBar(title: Text('Jogo da Velha')),
+      appBar: AppBar(
+        title: Text(
+          'JOGO DA IDOSA',
+          style: TextStyle(color: Colors.grey[50]),
+        ),
+        backgroundColor: Colors.green[900],
+        centerTitle: true,
+      ),
       body: Center(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => GameScreen(vsCpu: false)),
-                );
-              },
-              child: Text('2 Jogadores'),
+            const Image(
+              image: AssetImage('lib/img/icon.png'),
+              height: 200,
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => GameScreen(vsCpu: true)),
-                );
-              },
-              child: Text('Jogar contra CPU'),
-            ),
+            const SizedBox(height: 20),
+            ButtonDesign(
+                name: 'Jogar contra Jogador',
+                onPressed: playWithPlayer,
+                secondaryColor: false),
+            const SizedBox(height: 20),
+            ButtonDesign(
+                name: 'Jogar contra CPU',
+                onPressed: playWithCpu,
+                secondaryColor: true),
           ],
         ),
       ),
