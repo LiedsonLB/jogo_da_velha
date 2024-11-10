@@ -30,6 +30,7 @@ class GameLogic {
     }
   }
 
+
   void cpuMove() {
     List<int> emptyIndices = [];
     for (int i = 0; i < board.length; i++) {
