@@ -15,12 +15,11 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   late GameLogic gameLogic;
-  late DatabaseService databaseService;
+  final DatabaseService databaseService = DatabaseService.instance;
 
   @override
   void initState() {
     super.initState();
-    databaseService = DatabaseService();
     gameLogic = GameLogic(databaseService);
   }
 
@@ -88,7 +87,7 @@ class _GameScreenState extends State<GameScreen> {
             GridView.builder(
               shrinkWrap: true,
               gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
               itemCount: 9,
               itemBuilder: (context, index) {
                 return GestureDetector(
@@ -122,5 +121,3 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 }
-
-// enviar o gameLogic.board para o historico para criar uma cena do tabuleiro, além do ganhador, tipo de modo e data da partida

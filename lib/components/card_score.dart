@@ -20,13 +20,16 @@ class CardScore extends StatelessWidget {
     return Container(
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: Colors.white),
+        border: Border.all(
+          color: MyColors.secondary,
+          width: 1,
+        ),
         color: Colors.white,
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Image(
@@ -72,7 +75,7 @@ class CardScore extends StatelessWidget {
   Widget _buildMiniBoard() {
     return Column(
       children: List.generate(3, (row) {
-        return Row(
+        return Padding(padding: const EdgeInsets.symmetric(horizontal: 3), child: Row(
           children: List.generate(3, (col) {
             final index = row * 3 + col;
             return Container(
@@ -81,18 +84,24 @@ class CardScore extends StatelessWidget {
               alignment: Alignment.center,
               margin: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(0),
               ),
               child: Text(
                 boardState[index],
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
+                  color: boardState[index] == 'X'
+                      ? MyColors.blue
+                      : boardState[index] == 'O'
+                      ? MyColors.red
+                      : MyColors.white,
                 ),
               ),
             );
           }),
-        );
+        ),);
       }),
     );
   }

@@ -30,7 +30,6 @@ class GameLogic {
     }
   }
 
-
   void cpuMove() {
     List<int> emptyIndices = [];
     for (int i = 0; i < board.length; i++) {
@@ -73,10 +72,10 @@ class GameLogic {
   }
 
   // Função para salvar o jogo no banco de dados
-  void saveGameResult(String winner) {
+  Future<void> saveGameResult(String winner) async {
     String boardState = board.join(',');
-    String mode = currentPlayer == 'X' ? 'vs Cpu' : '2 Jogadores';
+    String mode = currentPlayer == 'X' ? 'cpu' : '2 Jogadores';
 
-    databaseService.saveGame(winner, mode, boardState);
+    await databaseService.saveGame(winner, mode, boardState);
   }
 }

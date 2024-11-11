@@ -1,85 +1,65 @@
-import 'package:postgres/postgres.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 class DatabaseService {
-  late Connection connection;
+  static final DatabaseService instance = DatabaseService._init();
+  static Database? _database;
 
-  // Conectando o banco de dados
-  Future<void> connect() async {
-    try {
-      connection = await Connection.open(
-        Endpoint(
-          host: 'localhost',
-          database: 'jvbd',
-          username: 'jvbd',
-          password: 'password',
-        ),
-      );
-      print('Conectado ao banco de dados PostgreSQL');
-    } catch (e) {
-      print('Erro ao conectar ao banco de dados: $e');
-    }
+  DatabaseService._init();
+
+  Future<Database> get database async {
+    _database ??= await _initDB('game_history.db');
+    return _database!;
   }
 
-  // Função para salvar um jogo no banco de dados
+  Future<Database> _initDB(String filePath) async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, filePath);
+
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _createDB,
+    );
+  }
+
+  Future _createDB(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE game_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        winner TEXT,
+        mode TEXT,
+        boardState TEXT,
+        date TEXT
+      )
+    ''');
+  }
+
   Future<void> saveGame(String winner, String mode, String boardState) async {
-    try {
-      await connection.execute(
-        '''
-        INSERT INTO game_history (winner, mode, board_state)
-        VALUES (@winner, @mode, @boardState)
-        ''',
-        parameters: {
-          'winner': winner,
-          'mode': mode,
-          'boardState': boardState,
-        },
-      );
-      print('Jogo salvo com sucesso');
-    } catch (e) {
-      print('Erro ao salvar o jogo: $e');
-    }
+    final db = await instance.database;
+
+    final isoDate = DateTime.now().toIso8601String();
+
+    final data = {
+      'winner': winner,
+      'mode': mode,
+      'boardState': boardState,
+      'date': isoDate,
+    };
+
+    await db.insert('game_history', data);
+    print(data);
+    print('Jogo salvo com sucesso');
   }
 
-  // Função para buscar o histórico de jogos
-  Future<List<Game>> fetchGameHistory() async {
-    try {
-      List<List<dynamic>> results = await connection.execute('SELECT * FROM game_history');
-
-      return results.map((row) {
-        return Game(
-          id: row[0],
-          winner: row[1],
-          date: row[2].toString(),
-          mode: row[3],
-          boardState: row[4].toString().split(','), // Para converter o tabuleiro para uma lista
-        );
-      }).toList();
-    } catch (e) {
-      print('Erro ao buscar histórico de jogos: $e');
-      return [];
-    }
+  Future<List<Map<String, dynamic>>> fetchGameHistory() async {
+    final db = await instance.database;
+    return await db.query('game_history', orderBy: 'date DESC');
   }
 
-  // Função para fechar a conexão com o banco de dados
-  Future<void> closeConnection() async {
-    await connection.close();
-    print('Conexão com o banco de dados fechada');
+  Future<void> close() async {
+    final db = await instance.database;
+    db.close();
+    _database = null;
   }
-}
-
-// Classe para representar o modelo de um jogo
-class Game {
-  final int id;
-  final String winner;
-  final String date;
-  final String mode;
-  final List<String> boardState;
-
-  Game({
-    required this.id,
-    required this.winner,
-    required this.date,
-    required this.mode,
-    required this.boardState,
-  });
 }
